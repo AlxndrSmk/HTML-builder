@@ -6,16 +6,16 @@ const output = fs.createWriteStream(path.join(__dirname, 'output.txt'));
 
 stdout.write('Hi! Write your text here:\n');
 stdin.on('data', data => {
-    data.toString().trim() === 'exit' ?
+  data.toString().trim() === 'exit' ?
     exitApp() :
     output.write(data);
 });
 
 process.on('SIGINT', () => {
-    exitApp();
-})
+  exitApp();
+});
 
 function exitApp() {
-    console.log('Bye-bye!');
-    exit();
-  }
+  console.log('Bye-bye!');
+  exit();
+}

@@ -11,8 +11,8 @@ fsp.readdir(directory, { withFileTypes: true }).then((files) => {
       fsp.stat(filePath).then((stat) => {
         const fileName = path.basename(filePath).split('.')[0];
         const fileExtention = path.extname(filePath).slice(1);
-        const fileSize = Math.round(stat.size / 1024 * 1000) / 1000;
-        
+        const fileSize = Math.round((stat.size / 1024) * 1000) / 1000;
+
         console.log(`${fileName} - ${fileExtention} - ${fileSize}kb`);
       });
     }
