@@ -2,9 +2,11 @@ const fs = require('fs');
 const path = require('path');
 const fsp = fs.promises;
 
-function createProjectDist() {
-  const projectDist = path.resolve(__dirname, 'project-dist/assets');
-  return fsp.mkdir(projectDist, { recursive: true });
+async function createProjectDist(input, output) {
+  await fsp.rm(output, { recursive: true, force: true });
+  await fsp.mkdir(output, { recursive: true });
+
+  copyAssets(input, output);
 }
 
 async function createHTML() {
@@ -67,8 +69,41 @@ async function createCSS() {
   }
 }
 
+async function clearDir() {
+  const pathToOutput = path.resolve(__dirname, 'project-dist');
+  await fsp.rm(pathToOutput, { recursive: true, force: true });
+  await fsp.mkdir(pathToOutput, { recursive: true });
+}
+
+async function copyAssets(input, output) {
+  const assets = await fsp.readdir(input, { withFileTypes: true });
+
+  for (let asset of assets) {
+    if (asset.isDirectory()) {
+      await fsp.mkdir(path.join(output, asset.name));
+      await copyAssets(
+        path.join(input, asset.name),
+        path.join(output, asset.name)
+      );
+    } else {
+      await fsp.copyFile(
+        path.join(input, asset.name),
+        path.join(output, asset.name)
+      );
+    }
+  }
+}
+
 async function createProject() {
-  await createProjectDist();
+  await clearDir(path.resolve(__dirname, 'project-dist'), {
+    force: true,
+    recursive: true,
+  });
+
+  await createProjectDist(
+    path.resolve(__dirname, 'assets'),
+    path.resolve(__dirname, 'project-dist', 'assets')
+  );
   await createHTML();
   await createCSS();
 }
